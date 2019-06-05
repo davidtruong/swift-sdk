@@ -26,4 +26,12 @@ class IterableInboxNavigationViewControllerTests: XCTestCase {
         
         XCTAssertEqual((inboxNavigationVC.viewControllers[0] as? IterableInboxViewController)?.cellNibName, cellNibName)
     }
+    
+    func testDoneButtonPressed() {
+//        let inboxNavigationVC = IterableInboxNavigationViewController()
+//        
+//        if let doneAction = inboxNavigationVC.navigationItem.rightBarButtonItem?.action {
+//            perform(doneAction)
+//        }
+    }
 }
