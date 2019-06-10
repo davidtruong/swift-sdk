@@ -29,37 +29,41 @@ class IterableInboxViewControllerTests: XCTestCase {
         XCTAssertNil(inboxViewController4.navigationController?.tabBarItem.badgeValue)
     }
     
-//    func testOnInboxChangedNotification() {
-//        let mockInAppFetcher = MockInAppFetcher()
-//        
-//        IterableAPI.initializeForTesting(inAppFetcher: mockInAppFetcher)
-//        
-//        let inboxViewController = IterableInboxViewController()
-//        
-//        var messages: [IterableInAppMessage] = []
-//        
-//        let message1 = IterableInAppMessage(messageId: "34g87hg982", campaignId: "23g8jer2ia42d", content: createDefaultContent())
-//        messages.append(message1)
-//        
-//        mockInAppFetcher.mockMessagesAvailableFromServer(messages: messages) {
-//            XCTAssertNil(inboxViewController.navigationController?.tabBarItem.badgeValue)
-//            
-//            NotificationCenter.default.post(name: .iterableInboxChanged, object: nil)
-//            
-//            XCTAssertEqual(inboxViewController.navigationController?.tabBarItem.badgeValue, "\(messages.count)")
-//        }
-//        
-//        // either: "remove" message1 and test for nil again
-//        // or add a couple more messages to test for what the count is
-//    }
-//    
+    func testOnInboxChangedNotification() {
+        let mockInAppFetcher = MockInAppFetcher()
+        let mockNotificationCenter = MockNotificationCenter()
+        
+        let inboxViewController = IterableInboxViewController()
+        
+        var messages: [IterableInAppMessage] = []
+        
+        let message1 = IterableInAppMessage(messageId: "34g87hg982", campaignId: "23g8jer2ia42d", content: createDefaultContent())
+        messages.append(message1)
+        
+        mockNotificationCenter.addCallback(forNotification: .iterableInboxChanged) {
+            XCTAssertEqual(inboxViewController.navigationController?.tabBarItem.badgeValue, "\(messages.count)")
+        }
+        
+        IterableAPI.initializeForTesting(inAppFetcher: mockInAppFetcher,
+                                         notificationCenter: mockNotificationCenter)
+        
+        mockInAppFetcher.mockMessagesAvailableFromServer(messages: messages) {
+            XCTAssertNil(inboxViewController.navigationController?.tabBarItem.badgeValue)
+            
+            mockNotificationCenter.post(name: .iterableInboxChanged, object: nil, userInfo: nil)
+        }
+        
+        // either: "remove" message1 and test for nil again
+        // or add a couple more messages to test for what the count is
+    }
+
 //    func testInboxCellConfiguration() {
 //        let mockInAppFetcher = MockInAppFetcher()
-//        
+//
 //        IterableAPI.initializeForTesting(inAppFetcher: mockInAppFetcher)
-//        
+//
 //        var messages: [IterableInAppMessage] = []
-//        
+//
 //        let message1Date = Date()
 //        let message1Title = "title test!"
 //        let message1Subtitle = "subtitle thing"
@@ -75,19 +79,19 @@ class IterableInboxViewControllerTests: XCTestCase {
 //                                                                                 icon: nil),
 //                                            customPayload: nil)
 //        messages.append(message1)
-//        
+//
 //        mockInAppFetcher.mockMessagesAvailableFromServer(messages: messages) {
 //            let inboxViewController = IterableInboxViewController(style: .plain)
 //            _ = inboxViewController.view
-//            
+//
 //            // on Travis CI, somehow the inbox doesn't update properly
 //            XCTAssertEqual(inboxViewController.navigationController?.tabBarItem.badgeValue, "\(messages.count)")
-//            
+//
 //            guard let cell = inboxViewController.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? IterableInboxCell else {
 //                XCTFail("ERROR: Could not find first IterableInboxCell that should be there")
 //                return
 //            }
-//            
+//
 //            XCTAssertEqual(cell.titleLbl?.text, message1Title)
 //            XCTAssertEqual(cell.subtitleLbl?.text, message1Subtitle)
 //            XCTAssertFalse(cell.unreadCircleView?.isHidden ?? true)
